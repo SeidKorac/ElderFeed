@@ -1,0 +1,48 @@
+version: "3.8"
+services:
+  backend:
+    build:
+      context: deep-one
+      dockerfile: Dockerfile
+    container_name: deep-one
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: "{SPRING_PROFILES_ACTIVE}"
+      SPRING_DATASOURCE_URL: "{SPRING_DATASOURCE_URL}"
+      SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
+      SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
+    depends_on:
+      - postgres
+    volumes:
+      - "${BACKEND_FOLDER}:/docker/deep-one"
+  postgres:
+    image: postgres
+    restart: always
+    container_name: pgdb
+    hostname: postgres.docker
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    environment:
+      POSTGRES_USER: "${DB_USERNAME}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      POSTGRES_DB: "${DB_DATABASE}"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data:rw
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
+      PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+volumes:
+  postgres-data:
+  pgadmin-data:
